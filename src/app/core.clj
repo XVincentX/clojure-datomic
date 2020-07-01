@@ -1,33 +1,44 @@
-(ns app.core (:require [clojure.spec.alpha :as spec]
-                       [io.pedestal.http :as http]
-                       [io.pedestal.http.route :as route]) (:gen-class))
+(ns app.core (:gen-class) (:require [datomic.client.api :as d]))
 
-(spec/def ::age integer?)
-(spec/def ::name string?)
-(spec/def ::surname string?)
+(def db-cfg {:server-type :peer-server
+             :access-key "myaccesskey"
+             :secret "mysecret"
+             :endpoint "localhost:8998"
+             :validate-hostnames false})
 
-(spec/def ::user (spec/keys :req [::name ::surname ::age]))
 
-(spec/valid? ::user {::name "Vincenzo" ::surname "Chianese" ::age 31})
+(def schema [{:db/ident ::title
+              :db/unique :db.unique/identity
+              :db/valueType :db.type/string
+              :db/cardinality :db.cardinality/one}
 
-(defn theSum [a b c d] (+ a b c d))
+             {:db/ident ::text
+              :db/valueType :db.type/string
+              :db/cardinality :db.cardinality/one}
 
-(defn respond-hello [request]
-  {:status 200 :body "Hello, world!"})
+             {:db/ident ::author
+              :db/valueType :db.type/string
+              :db/cardinality :db.cardinality/many}
 
-(def routes
-  (route/expand-routes
-   #{["/greet" :get respond-hello :route-name :greet]}))
+             {:db/ident ::followup
+              :db/valueType :db.type/ref
+              :db/cardinality :db.cardinality/one}])
 
-(defn create-server []
-  (http/create-server
-   {::http/routes routes
-    ::http/type   :jetty
-    ::http/port   8890}))
+(def initial-data [{::title "Grocery" ::text "Pasta" ::author "Vincenzo Chianese" ::followup {::title "Cucina"}}
+                   {::title "Cooking" ::text "Pan" ::author "Vincenzo Chianese"}])
 
-(defn start []
-  (http/start (create-server)))
+(def client (d/client db-cfg))
+(def connection (d/connect client {:db-name "hello"}))
+
+(d/transact connection {:tx-data schema})
+(d/transact connection {:tx-data initial-data})
+
+(def db (d/db connection))
+
+(def all-titles '[:find ?title
+                  :where [?id ::title ?title] [?id ::followup]])
+
 
 (defn -main
   []
-  (start))
+  (println (d/q all-titles db)))
