@@ -14,4 +14,5 @@
   :repl-options {:init-ns app.core}
   :min-lein-version "2.9.3"
   :profiles {:uberjar {:aot :all}}
+  :uberjar-name "app.jar"
   :main app.core)
