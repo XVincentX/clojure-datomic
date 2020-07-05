@@ -1,7 +1,8 @@
 (ns app.core (:gen-class) (:require [io.pedestal.http :as http]
                                     [io.pedestal.http.route :as route]
                                     [clojure.data.json :as json]
-                                    [environ.core :refer [env]]))
+                                    [environ.core :refer [env]]
+                                    [app.depth_seq :as depth_seq]))
 
 (defn create-server [routes]
   (http/create-server

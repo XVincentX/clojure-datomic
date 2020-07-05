@@ -1,4 +1,4 @@
-(ns app.depth-seq)
+(ns app.depth_seq)
 
 (defn average [numbers] (/ (apply + numbers) (count numbers)))
 
