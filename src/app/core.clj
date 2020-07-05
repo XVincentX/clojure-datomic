@@ -1,44 +1,19 @@
-(ns app.core (:gen-class) (:require [datomic.client.api :as d]))
+(ns app.core (:gen-class) (:require [app.depth-seq :as ds]
+                                    [io.pedestal.http :as http]
+                                    [io.pedestal.http.route :as route]
+                                    [clojure.data.json :as json]))
 
-(def db-cfg {:server-type :peer-server
-             :access-key "myaccesskey"
-             :secret "mysecret"
-             :endpoint "localhost:8998"
-             :validate-hostnames false})
+(defn create-server [routes]
+  (http/create-server
+   {::http/routes routes
+    ::http/type   :jetty
+    ::http/port   8890}))
 
+(def routes
+  (route/expand-routes
+   #{["/depth-seq" :get (fn nasino [] (json/write-str {:a 1 :b 2})) :route-name :depth-seq]}))
 
-(def schema [{:db/ident ::title
-              :db/unique :db.unique/identity
-              :db/valueType :db.type/string
-              :db/cardinality :db.cardinality/one}
+(defn start []
+  (http/start (create-server routes)))
 
-             {:db/ident ::text
-              :db/valueType :db.type/string
-              :db/cardinality :db.cardinality/one}
-
-             {:db/ident ::author
-              :db/valueType :db.type/string
-              :db/cardinality :db.cardinality/many}
-
-             {:db/ident ::followup
-              :db/valueType :db.type/ref
-              :db/cardinality :db.cardinality/one}])
-
-(def initial-data [{::title "Grocery" ::text "Pasta" ::author "Vincenzo Chianese" ::followup {::title "Cucina"}}
-                   {::title "Cooking" ::text "Pan" ::author "Vincenzo Chianese"}])
-
-(def client (d/client db-cfg))
-(def connection (d/connect client {:db-name "hello"}))
-
-(d/transact connection {:tx-data schema})
-(d/transact connection {:tx-data initial-data})
-
-(def db (d/db connection))
-
-(def all-titles '[:find ?title
-                  :where [?id ::title ?title] [?id ::followup]])
-
-
-(defn -main
-  []
-  (println (d/q all-titles db)))
+(defn -main [] (start))
