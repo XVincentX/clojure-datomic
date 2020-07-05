@@ -1,12 +1,13 @@
 (ns app.core (:gen-class) (:require [io.pedestal.http :as http]
                                     [io.pedestal.http.route :as route]
-                                    [clojure.data.json :as json]))
+                                    [clojure.data.json :as json]
+                                    [environ.core :refer [env]]))
 
 (defn create-server [routes]
   (http/create-server
    {::http/routes routes
     ::http/type   :jetty
-    ::http/port   8890}))
+    ::http/port   (Integer. (or (env :port) 5000))}))
 
 (def routes
   (route/expand-routes

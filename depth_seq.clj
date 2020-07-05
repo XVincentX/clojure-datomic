@@ -1,4 +1,4 @@
-(ns app.depth-seq (:gen-class))
+(ns app.depth-seq)
 
 (defn average [numbers] (/ (apply + numbers) (count numbers)))
 
