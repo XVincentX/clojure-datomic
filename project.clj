@@ -8,6 +8,8 @@
                  [io.pedestal/pedestal.service "0.5.7"]
                  [io.pedestal/pedestal.route "0.5.7"]
                  [io.pedestal/pedestal.jetty "0.5.7"]
-                 [org.clojure/data.json "1.0.0"]]
+                 [org.clojure/data.json "1.0.0"]
+                 [org.slf4j/slf4j-simple "1.7.30"]]
   :repl-options {:init-ns app.core}
+  :min-lein-version "2.9.3"
   :main app.core)

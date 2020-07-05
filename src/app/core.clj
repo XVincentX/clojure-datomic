@@ -1,5 +1,4 @@
-(ns app.core (:gen-class) (:require [app.depth-seq :as ds]
-                                    [io.pedestal.http :as http]
+(ns app.core (:gen-class) (:require [io.pedestal.http :as http]
                                     [io.pedestal.http.route :as route]
                                     [clojure.data.json :as json]))
 
@@ -11,7 +10,7 @@
 
 (def routes
   (route/expand-routes
-   #{["/depth-seq" :get (fn nasino [] (json/write-str {:a 1 :b 2})) :route-name :depth-seq]}))
+   #{["/depth-seq" :get (fn respond [req] {:status 200 :body (json/write-str {:a 1 :b 2})}) :route-name :depth-seq]}))
 
 (defn start []
   (http/start (create-server routes)))
