@@ -13,7 +13,7 @@
 
 (def routes
   (route/expand-routes
-   #{["/depth-seq" :get (fn respond [req] {:status 200 :body (json/write-str {:a 1 :b 2})}) :route-name :depth-seq]}))
+   #{["/depth-seq" :get (fn respond [_req] {:status 200 :body (json/write-str {:a 1 :b 2})}) :route-name :depth-seq]}))
 
 (defn start []
   (http/start (create-server routes)))
