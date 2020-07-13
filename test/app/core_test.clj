@@ -1,7 +1,6 @@
 (ns app.core-test
-  (:require [clojure.test :refer :all]
-            [app.core :refer :all]))
+  (:require [clojure.test :as t]))
 
-(deftest a-test
-  (testing "I pass"
-    (is (= 1 1))))
+(t/deftest a-test
+  (t/testing "I pass"
+    (t/is (= 1 1))))

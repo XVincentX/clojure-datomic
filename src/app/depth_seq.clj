@@ -1,8 +1,8 @@
 (ns app.depth_seq (:require [clojure.spec.alpha :as s]))
 
-(s/def ::node int?)
-(s/def ::tree (s/coll-of (s/keys :req [::node] :opt [::children])))
-(s/def ::children (s/coll-of ::tree))
+(s/def ::value int?)
+(s/def ::node (s/keys :req [::value] :opt [::children]))
+(s/def ::children (s/coll-of ::node :kind vector?))
 
 (defn average [numbers] (/ (apply + numbers) (count numbers)))
 
