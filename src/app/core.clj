@@ -3,7 +3,7 @@
                                     [clojure.data.json :as json]
                                     [environ.core :refer [env]]))
 
-(defn create-server [routes]
+(defn create-server "Creates a new server with the route map" [routes]
   (http/create-server
    {::http/routes routes
     ::http/type   :jetty
