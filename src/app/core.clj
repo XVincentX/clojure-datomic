@@ -15,8 +15,8 @@
 (def routes
   (route/expand-routes
    #{["/depth-seq" :get (fn [request] (let [params (get request :query-params)]
-                                        (if (s/valid? app.depth-seq/children params)
-                                          {:status 200 :body (json/write-str (app.depth-seq/depth-seq params))}
+                                        (if (s/valid? :app.depth-seq/children params)
+                                          {:status 200 :body (json/write-str (ds/depth-seq params))}
                                           {:status 412})))
       :route-name :depth-seq]}))
 
