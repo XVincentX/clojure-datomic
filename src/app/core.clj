@@ -2,7 +2,8 @@
                                     [io.pedestal.http.route :as route]
                                     [clojure.data.json :as json]
                                     [environ.core :refer [env]]
-                                    [app.depth-seq :as ds]))
+                                    [app.depth-seq :as ds]
+                                    [clojure.spec.alpha :as s]))
 
 (defn create-server "Creates a new server with the route map" [routes]
   (http/create-server
@@ -14,7 +15,9 @@
 (def routes
   (route/expand-routes
    #{["/depth-seq" :get (fn [request] (let [params (get request :query-params)]
-                                        {:status 200 :body (json/write-str params)}))
+                                        (if (s/valid? app.depth-seq/children params)
+                                          {:status 200 :body (json/write-str (app.depth-seq/depth-seq params))}
+                                          {:status 412})))
       :route-name :depth-seq]}))
 
 (defn start []
