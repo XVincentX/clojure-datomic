@@ -4,8 +4,6 @@
 (s/def ::node (s/keys :req [::value ::children]))
 (s/def ::children (s/coll-of ::node))
 
-(defn average [numbers] (/ (apply + numbers) (count numbers)))
-
 (defn depth-seq
   [tree]
   (when (seq tree)
