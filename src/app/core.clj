@@ -11,6 +11,7 @@
    {::http/routes routes
     ::http/type   :jetty
     ::http/host "0.0.0.0"
+    ::http/allowed-origins (constantly true)
     ::http/port   (Integer. (or (env :port) 5000))}))
 
 (def routes
