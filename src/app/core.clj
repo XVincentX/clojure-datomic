@@ -12,18 +12,32 @@
     ::http/type   :jetty
     ::http/host "0.0.0.0"
     ::http/allowed-origins (constantly true)
+    ::http/join? false
     ::http/port   (Integer. (or (env :port) 5000))}))
 
-(def routes
+(defn validate-query-string-shape [qstring spec]
+  {:name ::validate-query-string-shape
+   :enter (fn [context] (let [request (:request context)
+                              q-param (get-in request [:query-params qstring])
+                              parsed-param (edn/read-string q-param)]
+                          (if (s/valid? spec parsed-param)
+                            (assoc context :request {:parsed parsed-param})
+                            (assoc context :response {:status 412 :headers {}}))))})
+
+(defn create-routes []
   (route/expand-routes
-   #{["/depth-seq" :get (fn [request] (let [q-param (get-in request [:query-params :q])
-                                            parsed-param (edn/read-string q-param)]
-                                        (if (s/valid? :app.depth-seq/children parsed-param)
-                                          {:status 200 :body (json/write-str (ds/depth-seq parsed-param))}
-                                          {:status 412})))
+   #{["/depth-seq" :get [(validate-query-string-shape :q :app.depth-seq/children)
+                         (fn [request] {:status 200 :body (json/write-str (ds/depth-seq (:parsed request)))})]
       :route-name :depth-seq]}))
 
+(defonce server (atom nil))
+
 (defn start []
-  (http/start (create-server routes)))
+  (reset! server
+          (http/start (create-server (create-routes)))))
 
 (defn -main [] (start))
+
+(defn restart []
+  (http/stop @server)
+  (start))
