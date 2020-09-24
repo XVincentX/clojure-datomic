@@ -3,7 +3,8 @@
                                     [clojure.data.json :as json]
                                     [environ.core :refer [env]]
                                     [app.depth-seq :as ds]
-                                    [clojure.spec.alpha :as s]))
+                                    [clojure.spec.alpha :as s]
+                                    [clojure.edn :as edn]))
 
 (defn create-server "Creates a new server with the route map" [routes]
   (http/create-server
@@ -14,7 +15,7 @@
 
 (def routes
   (route/expand-routes
-   #{["/depth-seq" :get (fn [request] (let [params (json/read-str (get-in request [:query-params :q]))]
+   #{["/depth-seq" :get (fn [request] (let [params (edn/read-string (get-in request [:query-params :q]))]
                                         (if (s/valid? :app.depth-seq/children params)
                                           {:status 200 :body (json/write-str (ds/depth-seq params))}
                                           {:status 412})))
