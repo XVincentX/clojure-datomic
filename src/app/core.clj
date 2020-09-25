@@ -21,7 +21,7 @@
                               q-param (get-in request [:query-params qstring])
                               parsed-param (edn/read-string q-param)]
                           (if (s/valid? spec parsed-param)
-                            (assoc context :request {:parsed parsed-param})
+                            (assoc-in context [:request :parsed] parsed-param)
                             (assoc context :response {:status 412 :headers {}}))))})
 
 (defn create-routes []
