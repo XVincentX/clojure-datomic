@@ -24,7 +24,7 @@
                             (assoc-in context [:request :parsed] parsed-param)
                             (assoc context :response {:status 412 :headers {}}))))})
 
-(defn create-routes []
+(def routes
   (route/expand-routes
    #{["/depth-seq" :get [(validate-query-string-shape :q :app.depth-seq/children)
                          (fn [request] {:status 200 :body (json/write-str (ds/depth-seq (:parsed request)))})]
@@ -34,7 +34,7 @@
 
 (defn start []
   (reset! server
-          (http/start (create-server (create-routes)))))
+          (http/start (create-server routes))))
 
 (defn -main [] (start))
 
