@@ -10,7 +10,8 @@
                  [io.pedestal/pedestal.jetty "0.5.8"]
                  [org.clojure/data.json "1.0.0"]
                  [org.slf4j/slf4j-simple "1.7.30"]
-                 [environ "1.2.0"]]
+                 [environ "1.2.0"]
+                 [nrepl/drawbridge "0.2.1"]]
   :plugins [[lein-ancient "0.6.15"]]
   :repl-options {:init-ns app.core}
   :min-lein-version "2.9.4"

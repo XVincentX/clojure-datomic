@@ -4,7 +4,8 @@
                                     [environ.core :refer [env]]
                                     [app.depth-seq :as ds]
                                     [clojure.spec.alpha :as s]
-                                    [clojure.edn :as edn]))
+                                    [clojure.edn :as edn]
+                                    [drawbridge.core]))
 
 (defn create-server "Creates a new server with the route map" [routes]
   (http/create-server
@@ -26,9 +27,13 @@
 
 (def routes
   (route/expand-routes
-   #{["/depth-seq" :get [(validate-query-string-shape :q :app.depth-seq/children)
-                         (fn [request] {:status 200 :body (json/write-str (ds/depth-seq (:parsed request)))})]
-      :route-name :depth-seq]}))
+   #{["/depth-seq" :get
+      [(validate-query-string-shape :q :app.depth-seq/children)
+       (fn [request] {:status 200 :body (json/write-str (ds/depth-seq (:parsed request)))})]
+      :route-name :depth-seq]
+     ["/repl" :any
+      [(fn [request] ((drawbridge.core/ring-handler) request))]
+      :route-name :repl]}))
 
 (defonce server (atom nil))
 
