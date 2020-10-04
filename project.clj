@@ -14,6 +14,6 @@
   :plugins [[lein-ancient "0.6.15"]]
   :repl-options {:init-ns app.core}
   :min-lein-version "2.9.4"
-  :aot [app.core]
+  :profiles {:uberjar {:aot :all}}
   :uberjar-name "app.jar"
   :main app.core)
