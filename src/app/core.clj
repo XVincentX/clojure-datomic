@@ -11,22 +11,23 @@
    {::http/routes routes
     ::http/type   :jetty
     ::http/host "0.0.0.0"
-    ::http/allowed-origins (constantly true)
     ::http/join? false
     ::http/port   (Integer. (or (env :port) 5000))}))
 
+
+
 (def routes
   (route/expand-routes
-   #{["/people/:id" :get
+   #{["/people/:name" :get
       [(interceptors/with-db)
-       (fn [context] (let [db (get-in context [:request :db])
-                           result (d/q '[:find ?name
-                                         :in $
-                                         :where
-                                         [?note-id ::note "Nota 2"]
-                                         [?e :person/notes ?note-id]
-                                         [?e :person/name ?name]] db)]
-                       (json/write-str result)))]
+       (fn [request]
+         (let [result (d/q '[:find ?surname ?notes
+                             :in $ ?name
+                             :where
+                             [?e :person/notes ?notes]
+                             [?e :person/surname ?surname]]
+                           (:db request) (get-in request [:path-params :name]))]
+           {:status 200 :body (json/write-str result)}))]
       :route-name :get-people]
      ["/people/" :post
       [(interceptors/validate-payload-shape :json-params :app.data/person)
@@ -44,3 +45,5 @@
 (defn restart []
   (http/stop @server)
   (start))
+
+(restart)
