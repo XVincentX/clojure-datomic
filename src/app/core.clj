@@ -2,7 +2,6 @@
                                     [io.pedestal.http.route :as route]
                                     [clojure.data.json :as json]
                                     [environ.core :refer [env]]
-                                    [app.depth-seq :as ds]
                                     [clojure.spec.alpha :as s]
                                     [clojure.edn :as edn]
                                     [drawbridge.core]))
@@ -29,7 +28,7 @@
   (route/expand-routes
    #{["/depth-seq" :get
       [(validate-query-string-shape :q :app.depth-seq/children)
-       (fn [request] {:status 200 :body (json/write-str (ds/depth-seq (:parsed request)))})]
+       (constantly {:status 200 :body (json/write-str {:a 1 :b 2})})]
       :route-name :depth-seq]
      ["/repl" :any
       [(fn [request] ((drawbridge.core/ring-handler) request))]
