@@ -1,4 +1,4 @@
-(ns app.data (:require [datomdic.client.api :as d]
+(ns app.data (:require [datomic.client.api :as d]
                        [clojure.spec.alpha :as s]))
 
 (def client (d/client {:server-type :dev-local
