@@ -2,9 +2,9 @@
                                     [io.pedestal.http.route :as route]
                                     [clojure.data.json :as json]
                                     [environ.core :refer [env]]
-                                    [clojure.spec.alpha :as s]
-                                    [clojure.edn :as edn]
-                                    [drawbridge.core]))
+                                    [drawbridge.core]
+                                    [app.interceptors :as interceptors]
+                                    [datomic.client.api :as d]))
 
 (defn create-server "Creates a new server with the route map" [routes]
   (http/create-server
@@ -15,30 +15,29 @@
     ::http/join? false
     ::http/port   (Integer. (or (env :port) 5000))}))
 
-(defn validate-query-string-shape [qstring spec]
-  {:name ::validate-query-string-shape
-   :enter (fn [context] (let [request (:request context)
-                              q-param (get-in request [:query-params qstring])
-                              parsed-param (edn/read-string q-param)]
-                          (if (s/valid? spec parsed-param)
-                            (assoc-in context [:request :parsed] parsed-param)
-                            (assoc context :response {:status 412 :headers {}}))))})
-
 (def routes
   (route/expand-routes
-   #{["/depth-seq" :get
-      [(validate-query-string-shape :q :app.depth-seq/children)
+   #{["/people/:id" :get
+      [(interceptors/with-db)
+       (fn [context] (let [db (get-in context [:request :db])
+                           result (d/q '[:find ?name
+                                         :in $
+                                         :where
+                                         [?note-id ::note "Nota 2"]
+                                         [?e :person/notes ?note-id]
+                                         [?e :person/name ?name]] db)]
+                       (json/write-str result)))]
+      :route-name :get-people]
+     ["/people/" :post
+      [(interceptors/validate-payload-shape :json-params :app.data/person)
+       (interceptors/with-db)
        (constantly {:status 200 :body (json/write-str {:a 1 :b 2})})]
-      :route-name :depth-seq]
-     ["/repl" :any
-      [(fn [request] ((drawbridge.core/ring-handler) request))]
-      :route-name :repl]}))
+      :route-name :add-people]}))
 
 (defonce server (atom nil))
 
 (defn start []
-  (reset! server
-          (http/start (create-server routes))))
+  (reset! server (http/start (create-server routes))))
 
 (defn -main [] (start))
 
