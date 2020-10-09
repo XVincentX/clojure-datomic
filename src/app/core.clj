@@ -1,5 +1,5 @@
 (ns app.core (:gen-class) (:require [io.pedestal.http :as http]
-                                    [io.pedestal.http.body-params :as body-parsers]
+                                    [io.pedestal.http.body-params :refer [body-params]]
                                     [io.pedestal.http.route :as route]
                                     [clojure.data.json :as json]
                                     [environ.core :refer [env]]
@@ -37,7 +37,7 @@
       :route-name :get-people]
 
      ["/people" :post
-      [(body-parsers/body-params)
+      [(body-params)
        (interceptors/validate-payload-shape :json-params :app.data/person)
        (interceptors/with-db)
        #(let [_ (#'handle-post (:conn %) (:parsed %))]
@@ -54,5 +54,3 @@
 (defn restart "Restart the server when required" []
   (http/stop @server)
   (start))
-
-(restart)
