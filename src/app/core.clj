@@ -23,7 +23,10 @@
              db name)]
     (json/write-str result)))
 
-(defn handle-post [conn data] (d/transact conn {:tx-data data}))
+(defn handle-post [conn data]
+  (d/transact conn {:tx-data
+                    [{:person/name (get-in data [:person :name])
+                      :person/surname (get-in data [:person :surname])}]}))
 
 (def routes
   (route/expand-routes
@@ -43,12 +46,12 @@
 
 (defonce server (atom nil))
 
-(defn start []
+(defn start "Starts the server" []
   (reset! server (http/start (create-server routes))))
 
 (defn -main [] (start))
 
-(defn restart []
+(defn restart "Restart the server when required" []
   (http/stop @server)
   (start))
 
