@@ -15,5 +15,6 @@
   {:name ::with-db
    :enter (fn [context] (let [conn (d/connect data/client {:db-name "db"})
                               db (d/db conn)]
-                          (assoc-in context [:request :db] db)
-                          (assoc-in context [:request :conn] conn)))})
+                          (-> context
+                              (assoc-in [:request :db] db)
+                              (assoc-in [:request :conn] conn))))})
