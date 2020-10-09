@@ -24,14 +24,13 @@
              db name)]
     (json/write-str result)))
 
-(defn handle-post [conn data] (def cur-data data) (d/transact conn {:tx-data data}))
+(defn handle-post [conn data] (d/transact conn {:tx-data data}))
 
 (def routes
   (route/expand-routes
    #{["/people/:name" :get
       [(interceptors/with-db)
        (fn [request]
-         (def cur-req request)
          (let [result (#'handle-get (:db request) (get-in request [:path-params :name]))]
            {:status 200 :body (json/write-str result)}))]
       :route-name :get-people]
@@ -41,7 +40,6 @@
        (interceptors/validate-payload-shape :json-params :app.data/person)
        (interceptors/with-db)
        (fn [request]
-         (def cur-req request)
          (let [_ (#'handle-post (:conn request) (:parsed request))]
            {:status 201}))]
       :route-name :add-people]}))
