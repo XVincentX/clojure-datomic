@@ -3,7 +3,6 @@
                                     [io.pedestal.http.route :as route]
                                     [clojure.data.json :as json]
                                     [environ.core :refer [env]]
-                                    [drawbridge.core]
                                     [app.interceptors :as interceptors]
                                     [datomic.client.api :as d]))
 
@@ -54,5 +53,3 @@
 (defn restart []
   (http/stop @server)
   (start))
-
-(restart)

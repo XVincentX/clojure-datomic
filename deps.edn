@@ -7,4 +7,4 @@
   org.clojure/data.json {:mvn/version "1.0.0"}
   org.slf4j/slf4j-simple {:mvn/version "1.7.30"}
   environ {:mvn/version "1.2.0"}
-  nrepl/drawbridge {:mvn/version "0.2.1"}}}
+  metosin/spec-tools {:mvn/version "0.10.4"}}}

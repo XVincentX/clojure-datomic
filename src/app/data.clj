@@ -6,7 +6,7 @@
                        :storage-dir "/Users/vncz/dev/gops/src/gops/data/"}))
 
 (d/create-database client {:db-name "db"})
-(d/delete-database client {:db-name "db"})
+(comment (d/delete-database client {:db-name "db"}))
 (def conn (d/connect client {:db-name "db"}))
 
 (def people-schema [{:db/ident :person/name
@@ -26,12 +26,11 @@
                      :db/valueType :db.type/string
                      :db/cardinality :db.cardinality/one}])
 
+(d/transact conn {:tx-data people-schema})
+
 (s/def :person/name string?)
 (s/def :person/surname string?)
 (s/def ::note string?)
 (s/def :person/note (s/keys :req [::note]))
 (s/def :person/notes (s/coll-of :person/note :kind vector?))
 (s/def ::person (s/keys :req [:person/name :person/surname] :opt [:person/notes]))
-
-(def db (d/db conn))
-(d/transact conn {:tx-data people-schema})
