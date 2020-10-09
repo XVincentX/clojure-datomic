@@ -1,4 +1,5 @@
 (ns app.core (:gen-class) (:require [io.pedestal.http :as http]
+                                    [io.pedestal.http.body-params :as body-parsers]
                                     [io.pedestal.http.route :as route]
                                     [clojure.data.json :as json]
                                     [environ.core :refer [env]]
@@ -14,25 +15,35 @@
     ::http/join? false
     ::http/port   (Integer. (or (env :port) 5000))}))
 
+(defn handle-get [db name]
+  (let [result
+        (d/q '[:find (pull ?e [:person/name :person/surname])
+               :in $ ?name
+               :where
+               [?e :person/name ?name]]
+             db name)]
+    (json/write-str result)))
 
+(defn handle-post [conn data] (def cur-data data) (d/transact conn {:tx-data data}))
 
 (def routes
   (route/expand-routes
    #{["/people/:name" :get
       [(interceptors/with-db)
        (fn [request]
-         (let [result (d/q '[:find ?surname ?notes
-                             :in $ ?name
-                             :where
-                             [?e :person/notes ?notes]
-                             [?e :person/surname ?surname]]
-                           (:db request) (get-in request [:path-params :name]))]
+         (def cur-req request)
+         (let [result (#'handle-get (:db request) (get-in request [:path-params :name]))]
            {:status 200 :body (json/write-str result)}))]
       :route-name :get-people]
-     ["/people/" :post
-      [(interceptors/validate-payload-shape :json-params :app.data/person)
+
+     ["/people" :post
+      [(body-parsers/body-params)
+       (interceptors/validate-payload-shape :json-params :app.data/person)
        (interceptors/with-db)
-       (constantly {:status 200 :body (json/write-str {:a 1 :b 2})})]
+       (fn [request]
+         (def cur-req request)
+         (let [_ (#'handle-post (:conn request) (:parsed request))]
+           {:status 201}))]
       :route-name :add-people]}))
 
 (defonce server (atom nil))
