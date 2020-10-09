@@ -6,6 +6,7 @@
                        :storage-dir "/Users/vncz/dev/gops/src/gops/data/"}))
 
 (d/create-database client {:db-name "db"})
+(d/delete-database client {:db-name "db"})
 (def conn (d/connect client {:db-name "db"}))
 
 (def people-schema [{:db/ident :person/name
@@ -32,22 +33,5 @@
 (s/def :person/notes (s/coll-of :person/note :kind vector?))
 (s/def ::person (s/keys :req [:person/name :person/surname] :opt [:person/notes]))
 
-(def example-person
-  {:person/name "Vincenzo"
-   :person/surname "Chianese"
-   :person/notes [{::note "Nasino pariosino"}]})
-
-(s/conform ::person example-person)
-
-
 (def db (d/db conn))
-
-(d/q '[:find ?name
-       :in $
-       :where
-       [?note-id ::note "Nota 2"]
-       [?e :person/notes ?note-id]
-       [?e :person/name ?name]] db)
-
 (d/transact conn {:tx-data people-schema})
-(d/transact conn {:tx-data [example-person]})
