@@ -29,18 +29,16 @@
   (route/expand-routes
    #{["/people/:name" :get
       [(interceptors/with-db)
-       (fn [request]
-         (let [result (#'handle-get (:db request) (get-in request [:path-params :name]))]
-           {:status 200 :body (json/write-str result)}))]
+       #(let [result (handle-get (:db %) (get-in % [:path-params :name]))]
+          {:status 200 :body (json/write-str result)})]
       :route-name :get-people]
 
      ["/people" :post
       [(body-parsers/body-params)
        (interceptors/validate-payload-shape :json-params :app.data/person)
        (interceptors/with-db)
-       (fn [request]
-         (let [_ (#'handle-post (:conn request) (:parsed request))]
-           {:status 201}))]
+       #(let [_ (#'handle-post (:conn %) (:parsed %))]
+          {:status 201})]
       :route-name :add-people]}))
 
 (defonce server (atom nil))
@@ -53,3 +51,5 @@
 (defn restart []
   (http/stop @server)
   (start))
+
+(restart)

@@ -8,18 +8,18 @@
 (defn validate-payload-shape [source spec]
   (interceptor/on-request
    ::validate-query-string-shape
-   (fn [context]
-     (let [param (get-in context [:request source])
-           parsed-param (s/conform spec param)]
-       (if (= parsed-param :clojure.spec.alpha/invalid)
-         (assoc context :response {:status 412 :headers {} :body (json/write-str (s/explain-str spec param))})
-         (assoc-in context [:request :parsed] parsed-param))))))
+   #(let [param (get-in % [:request source])
+          parsed-param (s/conform spec param)]
+      (if (= parsed-param :clojure.spec.alpha/invalid)
+        (assoc % :response {:status 412
+                            :headers {}
+                            :body (json/write-str (s/explain-str spec param))})
+        (assoc-in % [:request :parsed] parsed-param)))))
 
 (defn with-db [] (interceptor/on-request
                   ::with-db
-                  (fn [context]
-                    (let [conn (d/connect data/client {:db-name "db"})
-                          db (d/db conn)]
-                      (-> context
-                          (assoc-in [:request :db] db)
-                          (assoc-in [:request :conn] conn))))))
+                  #(let [conn (d/connect data/client {:db-name "db"})
+                         db (d/db conn)]
+                     (-> %
+                         (assoc-in [:request :db] db)
+                         (assoc-in [:request :conn] conn)))))
