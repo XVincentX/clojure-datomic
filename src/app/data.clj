@@ -3,7 +3,7 @@
 
 (def client (d/client {:server-type :dev-local
                        :system "dev"
-                       :storage-dir "/Users/vncz/dev/gops/src/gops/data/"}))
+                       :storage-dir "/Users/vncz/dev/app/src/data/"}))
 
 (d/create-database client {:db-name "db"})
 (comment (d/delete-database client {:db-name "db"}))
