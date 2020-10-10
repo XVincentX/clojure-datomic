@@ -14,25 +14,24 @@
     ::http/join? false
     ::http/port   (Integer. (or (env :port) 5000))}))
 
-(defn handle-get [db name]
+(defn get-user-by-name [db name]
   (let [result
         (d/q '[:find (pull ?e [:person/name :person/surname])
                :in $ ?name
                :where
                [?e :person/name ?name]]
              db name)]
-    (json/write-str result)))
+    result))
 
-(defn handle-post [conn data]
-  (d/transact conn {:tx-data
-                    [{:person/name (get-in data [:person :name])
-                      :person/surname (get-in data [:person :surname])}]}))
+(defn add-user [conn data]
+  (def cur-data data)
+  (d/transact conn {:tx-data [data]}))
 
 (def routes
   (route/expand-routes
    #{["/people/:name" :get
       [(interceptors/with-db)
-       #(let [result (handle-get (:db %) (get-in % [:path-params :name]))]
+       #(let [result (json/write-str (get-user-by-name (:db %) (get-in % [:path-params :name])))]
           {:status 200 :body (json/write-str result)})]
       :route-name :get-people]
 
@@ -40,7 +39,7 @@
       [(body-params)
        (interceptors/validate-payload-shape :json-params :app.data/person)
        (interceptors/with-db)
-       #(let [_ (#'handle-post (:conn %) (:parsed %))]
+       #(let [_ (#'add-user (:conn %) (:parsed %))]
           {:status 201})]
       :route-name :add-people]}))
 
