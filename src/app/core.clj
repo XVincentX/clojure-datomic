@@ -31,7 +31,7 @@
   (route/expand-routes
    #{["/people/:name" :get
       [(interceptors/with-db)
-       #(let [result (json/write-str (get-user-by-name (:db %) (get-in % [:path-params :name])))]
+       #(let [result (get-user-by-name (:db %) (get-in % [:path-params :name]))]
           {:status 200 :body (json/write-str result)})]
       :route-name :get-people]
 
@@ -39,8 +39,7 @@
       [(body-params)
        (interceptors/validate-payload-shape :json-params :app.data/person)
        (interceptors/with-db)
-       #(let [_ (#'add-user (:conn %) (:parsed %))]
-          {:status 201})]
+       #(let [_ (#'add-user (:conn %) (:parsed %))] {:status 201})]
       :route-name :add-people]}))
 
 (defonce server (atom nil))
