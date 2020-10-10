@@ -13,23 +13,25 @@
     ::http/join? false
     ::http/port   (Integer. (or (env :port) 5000))}))
 
-(defn get-user-by-name [db name]
-  (let [result
-        (d/q '[:find (pull ?e [:person/name :person/surname])
-               :in $ ?name
-               :where
-               [?e :person/name ?name]]
-             db name)]
-    result))
+(defn get-user-by-id [db id]
+  (d/pull db '[:person/name :person/surname] id))
 
-(defn add-user [conn data]
-  (d/transact conn {:tx-data [data]}))
+(defn get-users-id [db]
+  (d/q '[:find ?e :in $ :where [?e :person/name _]] db))
+
+(defn add-user [conn data] (d/transact conn {:tx-data [data]}))
 
 (def routes
   (route/expand-routes
-   #{["/people/:name" :get
+   #{["/people/:id" :get
       [(interceptors/with-db)
-       #(let [result (get-user-by-name (:db %) (get-in % [:path-params :name]))]
+       #(let [result (get-user-by-id (:db %) (Long. (get-in % [:path-params :id])))]
+          {:status 200 :body result})]
+      :route-name :get-person]
+
+     ["/people" :get
+      [(interceptors/with-db)
+       #(let [result (get-users-id (:db %))]
           {:status 200 :body result})]
       :route-name :get-people]
 
@@ -37,7 +39,7 @@
       [(body-params)
        (interceptors/validate-payload-shape :json-params :app.data/person)
        (interceptors/with-db)
-       #(let [_ (#'add-user (:conn %) (:parsed %))] {:status 201})]
+       #(let [_ (add-user (:conn %) (:parsed %))] {:status 201})]
       :route-name :add-people]}))
 
 (defonce server (atom nil))
