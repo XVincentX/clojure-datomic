@@ -1,7 +1,6 @@
 (ns app.core (:gen-class) (:require [io.pedestal.http :as http]
                                     [io.pedestal.http.body-params :refer [body-params]]
                                     [io.pedestal.http.route :as route]
-                                    [clojure.data.json :as json]
                                     [environ.core :refer [env]]
                                     [app.interceptors :as interceptors]
                                     [datomic.client.api :as d]))
@@ -24,7 +23,6 @@
     result))
 
 (defn add-user [conn data]
-  (def cur-data data)
   (d/transact conn {:tx-data [data]}))
 
 (def routes
@@ -32,7 +30,7 @@
    #{["/people/:name" :get
       [(interceptors/with-db)
        #(let [result (get-user-by-name (:db %) (get-in % [:path-params :name]))]
-          {:status 200 :body (json/write-str result)})]
+          {:status 200 :body result})]
       :route-name :get-people]
 
      ["/people" :post
