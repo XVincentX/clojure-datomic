@@ -1,37 +1,41 @@
 (ns app.data (:require [datomic.client.api :as d]
                        [clojure.spec.alpha :as s]))
 
+
+(def db-schema [{:db/ident :person/id
+                 :db/valueType :db.type/uuid
+                 :db/unique :db.unique/identity
+                 :db/cardinality :db.cardinality/one}
+
+                {:db/ident :person/name
+                 :db/valueType :db.type/string
+                 :db/cardinality :db.cardinality/one}
+
+                {:db/ident :person/surname
+                 :db/valueType :db.type/string
+                 :db/cardinality :db.cardinality/one}
+
+                {:db/ident :person/notes
+                 :db/valueType :db.type/ref
+                 :db/isComponent true
+                 :db/cardinality :db.cardinality/many}
+
+                {:db/ident ::note
+                 :db/valueType :db.type/string
+                 :db/cardinality :db.cardinality/one}])
+
 (def client (d/client {:server-type :dev-local
                        :system "dev"
                        :storage-dir "/Users/vncz/dev/app/src/data/"}))
 
-(d/create-database client {:db-name "db"})
-(comment (d/delete-database client {:db-name "db"}))
-(def conn (d/connect client {:db-name "db"}))
+(defn init-db! "If the Datomic instance has no database, it will create one"
+  [db-name]
+  (when (zero? (count (d/list-databases client {})))
+    (d/create-database client {:db-name db-name})
+    (let [conn (d/connect client {:db-name db-name})]
+      (d/transact conn {:tx-data db-schema}))))
 
-(def people-schema [{:db/ident :person/id
-                     :db/valueType :db.type/uuid
-                     :db/unique :db.unique/identity
-                     :db/cardinality :db.cardinality/one}
-
-                    {:db/ident :person/name
-                     :db/valueType :db.type/string
-                     :db/cardinality :db.cardinality/one}
-
-                    {:db/ident :person/surname
-                     :db/valueType :db.type/string
-                     :db/cardinality :db.cardinality/one}
-
-                    {:db/ident :person/notes
-                     :db/valueType :db.type/ref
-                     :db/isComponent true
-                     :db/cardinality :db.cardinality/many}
-
-                    {:db/ident ::note
-                     :db/valueType :db.type/string
-                     :db/cardinality :db.cardinality/one}])
-
-(d/transact conn {:tx-data people-schema})
+(defn reset-db! [db-name] ((d/delete-database client {:db-name db-name})))
 
 (s/def :person/name string?)
 (s/def :person/surname string?)
