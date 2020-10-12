@@ -17,7 +17,7 @@
 
 (defn with-db [] (interceptor/on-request
                   ::with-db
-                  #(let [conn (d/connect data/client {:db-name "db"})
+                  #(let [conn (d/connect data/client {:db-name data/db})
                          db (d/db conn)]
                      (-> %
                          (assoc :db db)

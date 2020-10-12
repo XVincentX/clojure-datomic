@@ -4,7 +4,7 @@
                                     [environ.core :refer [env]]
                                     [app.interceptors :as interceptors]
                                     [datomic.client.api :as d]
-                                    [app.data :as db]))
+                                    [app.data :as data]))
 
 (defn create-server "Creates a new server with the route map" [routes]
   (http/create-server
@@ -55,7 +55,7 @@
 (defonce server (atom nil))
 
 (defn start "Starts the server" []
-  (db/init-db! "db")
+  (data/init-db! data/db-name)
   (reset! server (http/start (create-server routes))))
 
 (defn -main [] (start))

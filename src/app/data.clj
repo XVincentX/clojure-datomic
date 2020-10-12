@@ -28,6 +28,8 @@
                        :system "dev"
                        :storage-dir "/Users/vncz/dev/app/src/data/"}))
 
+(def db-name "db")
+
 (defn init-db! "If the Datomic instance has no database, it will create one"
   [db-name]
   (when (zero? (count (d/list-databases client {})))
