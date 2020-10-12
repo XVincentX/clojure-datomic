@@ -9,7 +9,12 @@
 (comment (d/delete-database client {:db-name "db"}))
 (def conn (d/connect client {:db-name "db"}))
 
-(def people-schema [{:db/ident :person/name
+(def people-schema [{:db/ident :person/id
+                     :db/valueType :db.type/uuid
+                     :db/unique :db.unique/identity
+                     :db/cardinality :db.cardinality/one}
+
+                    {:db/ident :person/name
                      :db/valueType :db.type/string
                      :db/cardinality :db.cardinality/one}
 
