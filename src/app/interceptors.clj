@@ -15,10 +15,11 @@
                             :body (s/explain-str spec param)})
         (assoc-in % [:request :parsed] parsed-param)))))
 
-(defn with-db [] (interceptor/on-request
-                  ::with-db
-                  #(let [conn (d/connect data/client {:db-name data/db})
-                         db (d/db conn)]
-                     (-> %
-                         (assoc :db db)
-                         (assoc :conn conn)))))
+(defn with-db []
+  (interceptor/on-request
+   ::with-db
+   #(let [conn (d/connect data/client {:db-name data/db})
+          db (d/db conn)]
+      (-> %
+          (assoc :db db)
+          (assoc :conn conn)))))
