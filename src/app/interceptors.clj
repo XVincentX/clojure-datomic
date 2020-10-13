@@ -2,7 +2,8 @@
                       [clojure.spec.alpha :as s]
                       [datomic.client.api :as d]
                       [io.pedestal.interceptor.helpers :as interceptor]
-                      [app.data :as data]))
+                      [app.data :as data]
+                      [clojure.data.json :as json]))
 
 (defn validate-payload-shape [source spec]
   (interceptor/before
@@ -18,8 +19,15 @@
 (defn with-db []
   (interceptor/on-request
    ::with-db
-   #(let [conn (d/connect data/client {:db-name data/db})
+   #(let [conn (d/connect data/client {:db-name data/db-name})
           db (d/db conn)]
       (-> %
           (assoc :db db)
           (assoc :conn conn)))))
+
+(defn json-serialise []
+  (interceptor/on-response
+   ::json-serialise
+   #(-> %
+        (update :body json/write-str)
+        (assoc-in [:headers "Content-Type"] "application/json"))))
