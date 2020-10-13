@@ -7,12 +7,15 @@
                                     [app.data :as data]))
 
 (defn create-server "Creates a new server with the route map" [routes]
-  (http/create-server
-   {::http/routes routes
-    ::http/type   :jetty
-    ::http/host "0.0.0.0"
-    ::http/join? false
-    ::http/port   (Integer. (or (env :port) 5000))}))
+  (let [service-map {::http/routes routes
+                     ::http/type   :jetty
+                     ::http/host "0.0.0.0"
+                     ::http/join? false
+                     ::http/port   (Integer. (or (env :port) 5000))}]
+    (-> service-map
+        (http/default-interceptors)
+        (update ::http/interceptors conj http/json-body)
+        http/create-server)))
 
 (defn get-user-by-id [db id]
   (d/q '[:find ?name ?surname
@@ -33,13 +36,13 @@
 (def routes
   (route/expand-routes
    #{["/people/:id" :get
-      [(interceptors/with-db)
+      [interceptors/with-db
        #(let [result (get-user-by-id (:db %) (java.util.UUID/fromString (get-in % [:path-params :id])))]
           {:status 200 :body result})]
       :route-name :get-person]
 
      ["/people" :get
-      [(interceptors/with-db)
+      [interceptors/with-db
        #(let [result (get-users-id (:db %))]
           {:status 200 :body result})]
       :route-name :get-people]
@@ -47,7 +50,7 @@
      ["/people" :post
       [(body-params)
        (interceptors/validate-payload-shape :json-params :app.data/person)
-       (interceptors/with-db)
+       interceptors/with-db
        (fn [req] (let [id (add-user (:conn req) (:parsed req))]
                    {:status 201 :body (str id)}))]
       :route-name :add-people]}))
