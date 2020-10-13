@@ -19,6 +19,7 @@
 
 (defn get-user-by-id [db id]
   (d/q '[:find ?name ?surname
+         :strs name surname
          :in $ id
          :where
          [_ :person/id ?id]
