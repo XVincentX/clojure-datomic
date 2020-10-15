@@ -18,13 +18,10 @@
         http/create-server)))
 
 (defn get-user-by-id [db id]
-  (d/q '[:find ?name ?surname
-         :strs name surname
+  (d/q '[:find (pull ?e [:person/name :person/surname])
          :in $ id
          :where
-         [_ :person/id ?id]
-         [_ :person/name ?name]
-         [_ :person/surname ?surname]] db id))
+         [?e :person/id ?id]] db id))
 
 (defn get-users-id [db]
   (d/q '[:find ?id :in $ :where [_ :person/id ?id]] db))
