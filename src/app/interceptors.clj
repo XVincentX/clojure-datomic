@@ -15,7 +15,7 @@
                             :body (s/explain-str spec param)})
         (assoc-in % [:request :parsed] parsed-param)))))
 
-(def caching-headers "Sets an immutable and public cache header if the request had the T query parameter"
+(def set-caching-headers "Sets an immutable and public cache header if the request had the T query parameter"
   (interceptor/after
    ::caching-headers
    #(cond-> %
@@ -27,5 +27,5 @@
    #(let [conn (d/connect data/client {:db-name data/db-name})
           db (d/db conn)]
       (-> %
-          (assoc :db (if-let [t (get-in % [:query-params :t])] (d/as-of db (Integer. t)) db))
+          (assoc :db (if-let [t (get-in % [:query-params :t])] (d/as-of db #inst t) db))
           (assoc :conn conn)))))

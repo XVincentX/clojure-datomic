@@ -36,7 +36,7 @@
    #{["/people/:id" :get
       [interceptors/with-db
        interceptors/caching-headers
-       #(let [result (get-user-by-id (:db %) (java.util.UUID/fromString (get-in % [:path-params :id])))]
+       #(let [result (get-user-by-id (:db %) (#uuid (get-in % [:path-params :id])))]
           {:status 200 :body result})]
       :route-name :get-person]
 
