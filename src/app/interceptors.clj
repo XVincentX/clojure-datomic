@@ -19,7 +19,7 @@
   (interceptor/after
    ::caching-headers
    #(if (not (nil? (get-in % [:request :query-params :t])))
-      (assoc-in % [:response :headers] {"Cache-Control" "public, immutable"})
+      (assoc-in % [:response :headers] {"Cache-Control" "public, max-age=604800, immutable"})
       %)))
 
 (def with-db
