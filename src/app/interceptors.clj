@@ -19,7 +19,8 @@
   (interceptor/after
    ::caching-headers
    #(cond-> %
-      (not (nil? (get-in % [:request :query-params :t]))) (assoc-in [:responde :headers] {"Cache-Control" "public, immutable"}))))
+      (not (nil? (get-in % [:request :query-params :t])))
+      (assoc-in [:responde :headers] {"Cache-Control" "public, immutable"}))))
 
 (def with-db
   (interceptor/on-request
