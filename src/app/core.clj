@@ -35,12 +35,14 @@
   (route/expand-routes
    #{["/people/:id" :get
       [interceptors/with-db
+       interceptors/caching-headers
        #(let [result (get-user-by-id (:db %) (java.util.UUID/fromString (get-in % [:path-params :id])))]
           {:status 200 :body result})]
       :route-name :get-person]
 
      ["/people" :get
       [interceptors/with-db
+       interceptors/caching-headers
        #(let [result (get-users-id (:db %))]
           {:status 200 :body result})]
       :route-name :get-people]
