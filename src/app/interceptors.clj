@@ -18,15 +18,16 @@
 (def caching-headers "Sets an immutable and public cache header if the request had the T query parameter"
   (interceptor/after
    ::caching-headers
-   #(if (not (nil? (get-in % [:request :query-params :t])))
-      (assoc-in % [:response :headers] {"Cache-Control" "public, max-age=604800, immutable"})
-      %)))
+   #(if  (nil? (:asOfT (get-in % [:request :db])))
+      %
+      (assoc-in % [:response :headers] {"Cache-Control" "public, max-age=604800, immutable"}))))
 
 (def with-db
   (interceptor/on-request
    ::with-db
    #(let [conn (d/connect data/client {:db-name data/db-name})
-          db (d/db conn)]
+          db (d/db conn)
+          t (get-in % [:query-params :t])]
       (-> %
-          (assoc :db (if-let [t (get-in % [:query-params :t])] (d/as-of db (Integer. t)) db))
+          (assoc :db (if (and (not (nil? t)) (< (Integer. t) (:t db))) (d/as-of db (Integer. t)) db))
           (assoc :conn conn)))))
