@@ -6,7 +6,7 @@
 
 (defn validate-payload-shape [source spec]
   (interceptor/before
-   ::validate-query-string-shape
+   ::validate-payload-shape
    #(let [param (get-in % [:request source])
           parsed-param (s/conform spec param)]
       (if (= parsed-param :clojure.spec.alpha/invalid)
