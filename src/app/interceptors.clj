@@ -7,7 +7,7 @@
 (defn validate-payload-shape [source spec]
   (interceptor/before
    ::validate-payload-shape
-   #(let [param (get-in % [:request source])
+   #(let [param (-> % :request source)
           parsed-param (s/conform spec param)]
       (if (= parsed-param :clojure.spec.alpha/invalid)
         (assoc % :response {:status 412
@@ -18,7 +18,7 @@
 (def caching-headers "Sets an immutable and public cache header if the request had a valid T query parameter"
   (interceptor/after
    ::caching-headers
-   #(if  (nil? (:asOfT (get-in % [:request :db])))
+   #(if  (nil? (:asOfT (-> % :request :db)))
       %
       (assoc-in % [:response :headers] {"Cache-Control" "public, max-age=604800, immutable"}))))
 
@@ -27,7 +27,7 @@
    ::with-db
    #(let [conn (d/connect data/client {:db-name data/db-name})
           db (d/db conn)
-          t (get-in % [:query-params :t])]
+          t (-> % :query-params :t)]
       (-> %
           (assoc :db (if (and (not (nil? t)) (< (Integer. t) (:t db))) (d/as-of db (Integer. t)) db))
           (assoc :conn conn)))))
