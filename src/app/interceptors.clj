@@ -42,12 +42,13 @@
    #(if-not (nil? (-> % :request :query-params :t))
       %
       (let [db (-> % :request :db)
-            t (ffirst (-> (d/q '[:find ?t
-                                 :in $ ?keyword
-                                 :where [_ ?keyword _ ?tx] [(datomic.api/tx->t ?tx) ?t]]
-                               db keyword)
-                          sort
-                          reverse))
+            t  (-> (d/q '[:find ?t
+                          :in $ ?keyword
+                          :where [_ ?keyword _ ?tx] [(datomic.api/tx->t ?tx) ?t]]
+                        db keyword)
+                   sort
+                   reverse
+                   ffirst)
             path (-> % :request :uri)]
         (assoc % :response {:status 307
                             :headers {"Location" (str (assoc-query path :t t))}})))))
