@@ -20,7 +20,7 @@
 (def caching-headers "Sets an immutable and public cache header if the request had a valid T query parameter"
   (interceptor/after
    ::caching-headers
-   #(if (nil? (:asOfT (-> % :request :db)))
+   #(if (-> % :request :db :asOfT nil?)
       %
       (assoc-in % [:response :headers] {"Cache-Control" "public, max-age=604800, immutable"}))))
 
@@ -39,7 +39,7 @@
   [keyword]
   (interceptor/before
    ::prefer-caching
-   #(if-not (nil? (-> % :request :query-params :t))
+   #(if-not (-> % :request :query-params :t nil?)
       %
       (let [db (-> % :request :db)
             t  (-> (d/q '[:find ?t
