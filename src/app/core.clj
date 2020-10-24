@@ -20,8 +20,7 @@
 (defn get-user-by-id [db id]
   (d/q '[:find (pull ?e [:person/name :person/surname])
          :in $ id
-         :where
-         [?e :person/id ?id]] db id))
+         :where [?e :person/id ?id]] db id))
 
 (defn get-all-users [db]
   (d/q '[:find (pull ?e [:person/name :person/surname])
@@ -37,6 +36,7 @@
   (route/expand-routes
    #{["/people/:id" :get
       [interceptors/with-db
+       (interceptors/prefer-caching :person/id)
        interceptors/caching-headers
        #(let [result (get-user-by-id (:db %) (java.util.UUID/fromString (-> % :path-params :id)))]
           {:status 200 :body result})]
@@ -44,6 +44,7 @@
 
      ["/people" :get
       [interceptors/with-db
+       (interceptors/prefer-caching :person/id)
        interceptors/caching-headers
        #(let [result (get-all-users (:db %))]
           {:status 200 :body result})]

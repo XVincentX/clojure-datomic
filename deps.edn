@@ -1,6 +1,7 @@
 {:deps
  {com.datomic/dev-local {:mvn/version "0.9.225"}
   com.datomic/datomic-free {:mvn/version "0.9.5697"}
+  lambdaisland/uri {:mvn/version "1.4.54"}
   org.clojure/clojure {:mvn/version "1.10.1"}
   io.pedestal/pedestal.service {:mvn/version "0.5.8"}
   io.pedestal/pedestal.route {:mvn/version "0.5.8"}
