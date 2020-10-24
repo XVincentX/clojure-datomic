@@ -27,7 +27,7 @@
    ::with-db
    #(let [conn (d/connect data/client {:db-name data/db-name})
           db (d/db conn)
-          t (-> % :query-params :t)]
+          t (when (-> % :query-params :t) (Integer. %))]
       (-> %
-          (assoc :db (if (and (not (nil? t)) (< (Integer. t) (:t db))) (d/as-of db (Integer. t)) db))
+          (assoc :db (if (and (not (nil? t)) (< t (:t db))) (d/as-of db t) db))
           (assoc :conn conn)))))

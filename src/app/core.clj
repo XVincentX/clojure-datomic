@@ -23,8 +23,10 @@
          :where
          [?e :person/id ?id]] db id))
 
-(defn get-users-id [db]
-  (d/q '[:find ?id :in $ :where [_ :person/id ?id]] db))
+(defn get-all-users [db]
+  (d/q '[:find (pull ?e [:person/name :person/surname])
+         :in $
+         :where [?e :person/id ?id]] db))
 
 (defn add-user [conn data]
   (let [id (java.util.UUID/randomUUID)]
@@ -43,7 +45,7 @@
      ["/people" :get
       [interceptors/with-db
        interceptors/caching-headers
-       #(let [result (get-users-id (:db %))]
+       #(let [result (get-all-users (:db %))]
           {:status 200 :body result})]
       :route-name :get-people]
 
