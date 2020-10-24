@@ -37,6 +37,7 @@
       (d/transact conn {:tx-data db-schema}))))
 
 (defn reset-db! [db-name] (d/delete-database client {:db-name db-name}))
+(defn get-current-db [] (d/db (d/connect client {:db-name db-name})))
 
 (s/def :person/name string?)
 (s/def :person/surname string?)
