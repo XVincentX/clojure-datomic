@@ -19,7 +19,7 @@
 
 (defn get-user-by-id [db id]
   (d/q '[:find (pull ?e [:person/name :person/surname])
-         :in $ id
+         :in $ ?id
          :where [?e :person/id ?id]] db id))
 
 (defn get-all-users [db]
