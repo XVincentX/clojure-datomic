@@ -42,6 +42,5 @@
 (s/def :person/name string?)
 (s/def :person/surname string?)
 (s/def ::note string?)
-(s/def :person/note (s/keys :req [::note]))
-(s/def :person/notes (s/coll-of :person/note :kind vector?))
+(s/def :person/notes (s/coll-of :note :kind vector?))
 (s/def ::person (s/keys :req [:person/name :person/surname] :opt [:person/notes]))
