@@ -37,7 +37,9 @@
       [interceptors/with-db
        (interceptors/prefer-caching :person/id)
        interceptors/caching-headers
-       #(let [result (get-user-by-id (:db %) (java.util.UUID/fromString (-> % :path-params :id)))]
+       #(let [db (:db %)
+              id (-> % :path-params :id java.util.UUID/fromString)
+              result (get-user-by-id db id)]
           {:status 200 :body result})]
       :route-name :get-person]
 
