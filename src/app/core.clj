@@ -35,7 +35,7 @@
   (route/expand-routes
    #{["/people/:id" :get
       [interceptors/with-db
-       (interceptors/prefer-caching :person/id)
+       interceptors/early-304
        interceptors/caching-headers
        #(let [db (:db %)
               id (-> % :path-params :id java.util.UUID/fromString)
@@ -45,7 +45,7 @@
 
      ["/people" :get
       [interceptors/with-db
-       (interceptors/prefer-caching :person/id)
+       interceptors/early-304
        interceptors/caching-headers
        #(let [result (get-all-users (:db %))]
           {:status 200 :body result})]
@@ -55,8 +55,8 @@
       [(body-params)
        (interceptors/validate-payload-shape :json-params :app.data/person)
        interceptors/with-db
-       (fn [req] (let [id (add-user (:conn req) (:parsed req))]
-                   {:status 201 :body (str id)}))]
+       #(let [id (add-user (:conn %) (:parsed %))]
+          {:status 201 :body (str id)})]
       :route-name :add-people]}))
 
 (defonce server (atom nil))

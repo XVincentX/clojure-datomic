@@ -18,7 +18,7 @@
         (assoc-in % [:request :parsed] parsed-param)))))
 
 (def caching-headers "Sets an immutable and public cache header if the request had a valid T query parameter.
-                      Alternatively, it will send an ETag header to the client"
+                      Alternatively, it will send an ETag header to the"
   (interceptor/after
    ::caching-headers
    #(if (-> % :request :db :asOfT nil?)
@@ -35,6 +35,18 @@
       (-> %
           (assoc :db (if (and (not (nil? t)) (< t (:t db))) (d/as-of db t) db))
           (assoc :conn conn)))))
+
+(def early-304 "Returns a 304 response when the request has the If-None-Match header and its value is the same
+                         of the current Datomic's t value"
+  (interceptor/before
+   ::early-304
+   #(if-let [if-none-match (get-in % [:request :headers "if-none-match"])]
+      (let [t (-> % :request :db :t)]
+        (if (= t (Integer. if-none-match))
+          (assoc % :response {:status 304 :headers {}})
+          %))
+      %)))
+
 
 (defn prefer-caching "Redirects the current request to a know T value if possible"
   [keyword]
