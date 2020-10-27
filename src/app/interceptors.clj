@@ -17,7 +17,8 @@
                             :body (s/explain-str spec param)})
         (assoc-in % [:request :parsed] parsed-param)))))
 
-(def caching-headers "Sets an immutable and public cache header if the request had a valid T query parameter"
+(def caching-headers "Sets an immutable and public cache header if the request had a valid T query parameter.
+                      Alternatively, it will send an ETag header to the client"
   (interceptor/after
    ::caching-headers
    #(if (-> % :request :db :asOfT nil?)
