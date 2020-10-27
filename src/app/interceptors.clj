@@ -63,7 +63,6 @@
                   reverse
                   ffirst)
             path (-> % :request :uri)]
-        (if (nil? t)
-          %
-          (assoc % :response {:status 307
-                              :headers {"Location" (str (assoc-query path :t t))}}))))))
+        (cond-> %
+          (some? t) (assoc :response {:status 307
+                                      :headers {"Location" (str (assoc-query path :t t))}}))))))
