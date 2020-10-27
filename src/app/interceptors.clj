@@ -21,7 +21,7 @@
   (interceptor/after
    ::caching-headers
    #(if (-> % :request :db :asOfT nil?)
-      %
+      (assoc-in % [:response :headers] {"ETag" (-> % :request :db :t str)})
       (assoc-in % [:response :headers] {"Cache-Control" "public, max-age=604800, immutable"}))))
 
 (def with-db "Attaches a :conn and :db to the request map with the relative Datomic objects"
@@ -50,5 +50,7 @@
                    reverse
                    ffirst)
             path (-> % :request :uri)]
-        (assoc % :response {:status 307
-                            :headers {"Location" (str (assoc-query path :t t))}})))))
+        (if (nil? t)
+          %
+          (assoc % :response {:status 307
+                              :headers {"Location" (str (assoc-query path :t t))}}))))))
