@@ -58,7 +58,7 @@
 
 (defn start "Starts the server" []
   (data/init-db! data/db-name)
-  (reset! server (http/start (create-server routes))))
+  (reset! server (-> routes create-server http/start)))
 
 (defn -main [] (start))
 
