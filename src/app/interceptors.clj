@@ -51,17 +51,18 @@
   [keyword]
   (interceptor/before
    ::prefer-caching
-   #(if-not (-> % :request :query-params :t nil?)
-      %
-      (let [db (-> % :request :db)
-            t (-> (d/q '[:find ?t
-                         :in $ ?keyword
-                         :where [_ ?keyword _ ?tx] [(datomic.api/tx->t ?tx) ?t]]
-                       db keyword)
-                  sort
-                  reverse
-                  ffirst)
-            path (-> % :request :uri)]
-        (cond-> %
-          (some? t) (assoc :response {:status 307
-                                      :headers {"Location" (str (assoc-query path :t t))}}))))))
+   #(cond-> %
+      (-> % :request :query-params :t nil?)
+      (fn [ctx]
+        (let [db (-> ctx :request :db)
+              t (-> (d/q '[:find ?t
+                           :in $ ?keyword
+                           :where [_ ?keyword _ ?tx] [(datomic.api/tx->t ?tx) ?t]]
+                         db keyword)
+                    sort
+                    reverse
+                    ffirst)
+              path (-> ctx :request :uri)]
+          (cond-> ctx
+            (some? t) (assoc :response {:status 307
+                                        :headers {"Location" (str (assoc-query path :t t))}})))))))
