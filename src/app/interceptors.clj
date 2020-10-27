@@ -55,13 +55,13 @@
    #(if-not (-> % :request :query-params :t nil?)
       %
       (let [db (-> % :request :db)
-            t  (-> (d/q '[:find ?t
-                          :in $ ?keyword
-                          :where [_ ?keyword _ ?tx] [(datomic.api/tx->t ?tx) ?t]]
-                        db keyword)
-                   sort
-                   reverse
-                   ffirst)
+            t (-> (d/q '[:find ?t
+                         :in $ ?keyword
+                         :where [_ ?keyword _ ?tx] [(datomic.api/tx->t ?tx) ?t]]
+                       db keyword)
+                  sort
+                  reverse
+                  ffirst)
             path (-> % :request :uri)]
         (if (nil? t)
           %
