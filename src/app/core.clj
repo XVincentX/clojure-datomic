@@ -7,17 +7,16 @@
                                     [app.data :as data]))
 
 (defn create-server "Creates a new server with the route map" [routes]
-  (let [service-map {::http/routes routes
-                     ::http/type   :jetty
-                     ::http/host "0.0.0.0"
-                     ::http/join? false
-                     ::http/port   (Integer. (or (env :port) 5000))}]
-    (-> service-map
-        (http/default-interceptors)
-        (update ::http/interceptors conj http/json-body)
-        (update ::http/interceptors conj interceptors/early-304)
-        (update ::http/interceptors conj interceptors/with-db)
-        http/create-server)))
+  (-> {::http/routes routes
+       ::http/type   :jetty
+       ::http/host "0.0.0.0"
+       ::http/join? false
+       ::http/port   (Integer. (or (env :port) 5000))}
+      (http/default-interceptors)
+      (update ::http/interceptors conj http/json-body)
+      (update ::http/interceptors conj interceptors/early-304)
+      (update ::http/interceptors conj interceptors/with-db)
+      http/create-server))
 
 (defn get-user-by-id [db id]
   (d/q '[:find (pull ?e [:person/name :person/surname])
