@@ -15,6 +15,8 @@
     (-> service-map
         (http/default-interceptors)
         (update ::http/interceptors conj http/json-body)
+        (update ::http/interceptors conj interceptors/early-304)
+        (update ::http/interceptors conj interceptors/with-db)
         http/create-server)))
 
 (defn get-user-by-id [db id]
@@ -34,9 +36,7 @@
 (def routes
   (route/expand-routes
    #{["/people/:id" :get
-      [interceptors/with-db
-       interceptors/early-304
-       interceptors/caching-headers
+      [interceptors/caching-headers
        #(let [db (:db %)
               id (-> % :path-params :id java.util.UUID/fromString)
               result (get-user-by-id db id)]
@@ -44,9 +44,7 @@
       :route-name :get-person]
 
      ["/people" :get
-      [interceptors/with-db
-       interceptors/early-304
-       interceptors/caching-headers
+      [interceptors/caching-headers
        #(let [result (get-all-users (:db %))]
           {:status 200 :body result})]
       :route-name :get-people]
@@ -54,7 +52,7 @@
      ["/people" :post
       [(body-params)
        (interceptors/validate-payload-shape :json-params :app.data/person)
-       interceptors/with-db
+
        #(let [id (add-user (:conn %) (:parsed %))]
           {:status 201 :body (str id)})]
       :route-name :add-people]}))
