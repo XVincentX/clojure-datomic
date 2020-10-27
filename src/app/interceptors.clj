@@ -47,7 +47,6 @@
           %))
       %)))
 
-
 (defn prefer-caching "Redirects the current request to a know T value if possible"
   [keyword]
   (interceptor/before
