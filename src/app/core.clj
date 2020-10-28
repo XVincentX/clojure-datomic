@@ -20,13 +20,13 @@
       http/create-server))
 
 (defn get-user-by-id [db id]
-  (d/q '[:find (pull ?e [:person/name :person/surname])
+  (d/q '[:find (pull ?e [:person/id :person/name :person/surname])
          :in $ ?id
          :where [?e :person/id ?id]] db id))
 
 (defn get-all-users [db]
-  (d/q '[:find (pull ?e [:person/name :person/surname])
-         :where [?e :person/id ?id]] db))
+  (d/q '[:find (pull ?e [:person/id :person/name :person/surname])
+         :where [?e :person/id]] db))
 
 (defn add-user [conn data]
   (let [id (java.util.UUID/randomUUID)]
@@ -36,7 +36,8 @@
 (def routes
   (route/expand-routes
    #{["/people/:id" :get
-      [#(let [db (:db %)
+      [(interceptors/validate-payload-shape :path-params :person/id)
+       #(let [db (:db %)
               id (-> % :path-params :id java.util.UUID/fromString)
               result (get-user-by-id db id)]
           {:status 200 :body result})]

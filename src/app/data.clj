@@ -24,6 +24,16 @@
                  :db/valueType :db.type/string
                  :db/cardinality :db.cardinality/one}])
 
+(def seed-data [{:person/id (java.util.UUID/randomUUID)
+                 :person/name "Vincenzo"
+                 :person/surname "Chianese"
+                 :person/nodes [{::note "Nobody wants me"}]}
+
+                {:person/id (java.util.UUID/randomUUID)
+                 :person/name "Elio"
+                 :person/surname "Bencini"
+                 :person/nodes [{::note "I am ugly"}]}])
+
 (def client (d/client {:server-type :dev-local
                        :system "dev"
                        :storage-dir "/Users/vncz/dev/app/src/data/"}))
@@ -34,11 +44,13 @@
   (when (zero? (count (d/list-databases client {})))
     (d/create-database client {:db-name db-name})
     (let [conn (d/connect client {:db-name db-name})]
-      (d/transact conn {:tx-data db-schema}))))
+      (d/transact conn {:tx-data db-schema})
+      (d/transact conn {:tx-data seed-data}))))
 
 (defn reset-db! [db-name] (d/delete-database client {:db-name db-name}))
 (defn get-current-db [] (d/db (d/connect client {:db-name db-name})))
 
+(s/def :person/id uuid?)
 (s/def :person/name string?)
 (s/def :person/surname string?)
 (s/def ::note string?)
