@@ -1,4 +1,6 @@
-version: 2
+version: 2.1
+orbs:
+  heroku: circleci/heroku@1.2.3
 jobs:
   build:
     working_directory: ~/cci-demo-clojure
@@ -6,9 +8,9 @@ jobs:
       - image: circleci/clojure:tools-deps
     steps:
       - checkout
+      - heroku/install
+      - run: heroku plugins:install java
       - run: mkdir ~/.clojure && mv ./repo.edn ~/.clojure/deps.edn
       - run: mkdir ~/.m2 && mv ./settings.xml ~/.m2/settings.xml
       - run: clojure -M:depstar -m hf.depstar.uberjar app.jar
-      - store_artifacts:
-          path: app.jar
-          destination: app.jar
+      - run: heroku deploy:jar app.jar --app clj-app
