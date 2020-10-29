@@ -27,28 +27,34 @@
 (def seed-data [{:person/id (java.util.UUID/randomUUID)
                  :person/name "Vincenzo"
                  :person/surname "Chianese"
-                 :person/nodes [{::note "Nobody wants me"}]}
+                 :person/notes ["note1"]}
 
                 {:person/id (java.util.UUID/randomUUID)
                  :person/name "Elio"
                  :person/surname "Bencini"
-                 :person/nodes [{::note "I am ugly"}]}])
+                 :person/notes ["note2"]}
+
+                {:db/id "note1"
+                 ::note "Nessuno mi vuole"}
+
+                {:db/id "note2"
+                 ::note "Sono un babbasone"}])
 
 (def client (d/client {:server-type :dev-local
                        :system "dev"
                        :storage-dir "/Users/vncz/dev/app/src/data/"}))
 
 (def db-name "db")
-(defn init-db! "If the Datomic instance has no database, it will create one"
-  [db-name]
-  (when (zero? (count (d/list-databases client {})))
-    (d/create-database client {:db-name db-name})
-    (let [conn (d/connect client {:db-name db-name})]
-      (d/transact conn {:tx-data db-schema})
-      (d/transact conn {:tx-data seed-data}))))
-
 (defn reset-db! [db-name] (d/delete-database client {:db-name db-name}))
-(defn get-current-db [] (d/db (d/connect client {:db-name db-name})))
+(defn get-current-conn [] (d/connect client {:db-name db-name}))
+(defn get-current-db [] (d/db (get-current-conn)))
+(defn init-db! "If the Datomic instance has no database, it will create one"
+  ([] (init-db! "db"))
+  ([db-name] (when (zero? (count (d/list-databases client {})))
+               (d/create-database client {:db-name db-name})
+               (let [conn (get-current-conn)]
+                 (d/transact conn {:tx-data db-schema})
+                 (d/transact conn {:tx-data seed-data})))))
 
 (s/def :person/id uuid?)
 (s/def :person/name string?)
