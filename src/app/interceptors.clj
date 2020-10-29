@@ -1,6 +1,7 @@
 (ns app.interceptors (:require
                       [clojure.spec.alpha :as s]
                       [datomic.client.api :as d]
+                      [datomic.api :refer [tx->t]]
                       [lambdaisland.uri :refer [assoc-query]]
                       [io.pedestal.interceptor.helpers :as interceptor]
                       [app.data :as data]))
@@ -46,6 +47,20 @@
           (assoc % :response {:status 304 :headers {}})
           %))
       %)))
+
+(def tx-304 "Returns a 304 response when the response's body has a tx value that's the same of the request's
+             If-None-Match header"
+  (interceptor/after
+   ::tx-304
+   (fn [context]
+     (if-let [if-none-match (get-in context [:request :headers "if-none-match"])]
+       (let [body (-> context :response :body)
+             t (Integer. if-none-match)
+             max-t (map #(-> % last tx->t) body)]
+         (if (= t max-t)
+           (update-in (assoc context :response {:status 304 :headers {}}) [:response] dissoc :body)
+           context))
+       context))))
 
 (defn prefer-caching "Redirects the current request to a know T value if possible"
   [keyword]
