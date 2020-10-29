@@ -13,4 +13,4 @@ jobs:
       - run: mkdir ~/.clojure && mv ./repo.edn ~/.clojure/deps.edn
       - run: mkdir ~/.m2 && mv ./settings.xml ~/.m2/settings.xml
       - run: clojure -M:depstar -m hf.depstar.uberjar app.jar
-      - run: heroku deploy:jar app.jar --app clj-app
+      - run: heroku deploy:jar app.jar --app clj-app --jdk 11
