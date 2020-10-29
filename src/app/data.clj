@@ -42,7 +42,7 @@
 
 (def client (d/client {:server-type :dev-local
                        :system "dev"
-                       :storage-dir "/Users/vncz/dev/app/src/data/"}))
+                       :storage-dir "/tmp/app/src/data/"}))
 
 (def db-name "db")
 (defn reset-db! [db-name] (d/delete-database client {:db-name db-name}))
