@@ -56,7 +56,7 @@
      (if-let [if-none-match (get-in context [:request :headers "if-none-match"])]
        (let [body (-> context :response :body)
              t (Integer. if-none-match)
-             max-t (map #(-> % last tx->t) body)]
+             max-t (apply max (map #(-> % last tx->t) body))]
          (if (= t max-t)
            (update-in (assoc context :response {:status 304 :headers {}}) [:response] dissoc :body)
            context))
