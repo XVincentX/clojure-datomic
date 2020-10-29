@@ -15,9 +15,9 @@
       (http/default-interceptors)
       (update ::http/interceptors conj interceptors/with-db)
       (update ::http/interceptors conj interceptors/early-304)
-      (update ::http/interceptors conj interceptors/tx-304)
       (update ::http/interceptors conj interceptors/caching-headers)
       (update ::http/interceptors conj http/json-body)
+      (update ::http/interceptors conj interceptors/tx-304)
       http/create-server))
 
 (defn get-user-by-id [db id]
