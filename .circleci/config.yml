@@ -1,0 +1,14 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/cci-demo-clojure
+    docker:
+      - image: circleci/clojure:tools-deps
+    steps:
+      - checkout
+      - run: mkdir ~/.clojure && mv ./repo.edn ~/.clojure/deps.edn
+      - run: mkdir ~/.m2 && mv ./settings.xml ~/.m2/settings.xml
+      - run: clojure -M:depstar -m hf.depstar.uberjar app.jar
+      - store_artifacts:
+          path: app.jar
+          destination: app.jar
