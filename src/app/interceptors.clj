@@ -23,8 +23,8 @@
   (interceptor/after
    ::caching-headers
    #(if (-> % :request :db :asOfT nil?)
-      (assoc-in % [:response :headers] {"ETag" (-> % :request :db :t str)})
-      (assoc-in % [:response :headers] {"Cache-Control" "public, max-age=604800, immutable"}))))
+      (assoc-in % [:response :headers "ETag"] (-> % :request :db :t str))
+      (assoc-in % [:response :headers "Cache-Control"] "public, max-age=604800, immutable"))))
 
 (def with-db "Attaches a :conn and :db to the request map with the relative Datomic objects"
   (interceptor/on-request
