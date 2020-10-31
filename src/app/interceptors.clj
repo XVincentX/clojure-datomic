@@ -34,7 +34,7 @@
           t-string (-> % :query-params :t)
           t (when t-string (Integer. t-string))]
       (-> %
-          (assoc :db (if (and (not (nil? t)) (< t (:t db))) (d/as-of db t) db))
+          (assoc :db (if (and (not (nil? t)) (<= t (:t db))) (d/as-of db t) db))
           (assoc :conn conn)))))
 
 (def early-304 "Returns a 304 response when the request has the If-None-Match header and its value is the same
