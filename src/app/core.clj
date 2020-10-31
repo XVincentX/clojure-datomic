@@ -60,7 +60,7 @@
      ["/people" :post
       [(body-params)
        (interceptors/validate-payload-shape :json-params :app.data/person)
-       #(let [id (add-user (:conn %) (:parsed %))]
+       #(let [id (add-user (:conn %) (:json-params %))]
           {:status 201 :body (str id)})]
       :route-name :add-people]}))
 
