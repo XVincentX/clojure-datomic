@@ -65,13 +65,13 @@
       (nil? (-> % :request :query-params :t))
       (fn [ctx]
         (let [db (-> ctx :request :db)
+              path (-> ctx :request :uri)
               t  (-> (d/q '[:find ?t
                             :in $ ?keyword
                             :where [_ ?keyword _ ?tx] [(datomic.api/tx->t ?tx) ?t]]
                           db keyword)
                      sort
                      reverse
-                     ffirst)
-              path (-> ctx :request :uri)]
+                     ffirst)]
           (cond-> ctx
             (some? t) (partial response-307 (str (assoc-query path :t t)))))))))
