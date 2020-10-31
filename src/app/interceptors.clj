@@ -52,7 +52,7 @@
      (let [if-none-match (get-in context [:request :headers "if-none-match"])
            body          (-> context :response :body)
            t             (when if-none-match (Integer. if-none-match))
-           max-t         (apply max (map #(-> % last tx->t) body))]
+           max-t         (when body (apply max (map #(-> % last tx->t) body)))]
        (if (= t max-t)
          (response-304 context)
          (update-in context [:response :body] normalize-payload))))))
