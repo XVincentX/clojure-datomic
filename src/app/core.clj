@@ -8,7 +8,7 @@
 
 (defn create-server "Creates a new server with the route map" [routes]
   (-> {::http/routes routes
-       ::http/type :jetty
+       ::http/type :immutant
        ::http/host "0.0.0.0"
        ::http/join? false
        ::http/port (Integer. (or (env :port) 5000))}
@@ -16,8 +16,8 @@
       (update ::http/interceptors into [interceptors/with-db
                                         interceptors/early-304
                                         interceptors/caching-headers
-                                        interceptors/tx-304
-                                        http/json-body])
+                                        http/json-body
+                                        interceptors/tx-304])
       http/create-server))
 
 (def routes
