@@ -14,7 +14,7 @@
    #(let [param (-> % :request source)
           parsed-param (s/conform spec param)]
       (cond-> %
-        (= parsed-param :clojure.spec.alpha/invalid) (partial response-412 (s/explain-str spec param))))))
+        (= parsed-param :clojure.spec.alpha/invalid) (response-412 (s/explain-str spec param))))))
 
 (def caching-headers "Sets an immutable and public cache header if the request had a valid T query parameter.
                       Alternatively, it will send an ETag header to the client"
@@ -54,8 +54,8 @@
            t             (when if-none-match (Integer. if-none-match))
            max-t         (when body (apply max (map #(-> % last tx->t) body)))]
        (cond-> context
-         (and (some? max-t) (= t max-t)) (response-304 context)
-         (some? max-t) (update-in context [:response :body] normalize-payload))))))
+         (and (some? max-t) (= t max-t)) response-304
+         (some? max-t) (update-in [:response :body] normalize-payload))))))
 
 (defn prefer-caching "Redirects the current request to a know T value if possible"
   [keyword]
@@ -74,4 +74,4 @@
                      reverse
                      ffirst)]
           (cond-> ctx
-            (some? t) (partial response-307 (str (assoc-query path :t t)))))))))
+            (some? t) (response-307 (str (assoc-query path :t t)))))))))

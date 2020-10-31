@@ -5,13 +5,13 @@
   (assoc context :response {:status 304 :headers {}}))
 
 (defn response-412 "Returns a 412 response with the specified message"
-  [message context]
+  [context message]
   (assoc context :response {:status 412
                             :headers {"Content-Type" "text/plain"}
                             :body message}))
 
 (defn response-307 "Returns a 307 response with the specified location"
-  [location context]
+  [context location]
   (assoc context :response {:status 307
                             :headers {"Location" location}}))
 
