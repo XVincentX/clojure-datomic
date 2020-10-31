@@ -15,10 +15,11 @@ jobs:
       - run: heroku plugins:install java
       - run: mkdir ~/.clojure && mv ./repo.edn ~/.clojure/deps.edn
       - run: mkdir ~/.m2 && mv ./settings.xml ~/.m2/settings.xml
-      - run: clojure -M:depstar -m hf.depstar.uberjar app.jar
+      - run: clojure -M:depstar
       - run: "echo 'web: java -cp app.jar clojure.main -m app.core' > ./Procfile"
       - run: heroku deploy:jar app.jar --app clj-app --jdk 11
       - save_cache:
           key: dependencies-{{ checksum "deps.edn" }}
           paths:
             - .cpcache
+            - ~/.m2
