@@ -53,9 +53,9 @@
            body          (-> context :response :body)
            t             (when if-none-match (Integer. if-none-match))
            max-t         (when body (apply max (map #(-> % last tx->t) body)))]
-       (if (= t max-t)
-         (response-304 context)
-         (update-in context [:response :body] normalize-payload))))))
+       (cond-> max-t
+         (and (some? max-t) (= t max-t)) (response-304 context)
+         (some? max-t) (update-in context [:response :body] normalize-payload))))))
 
 (defn prefer-caching "Redirects the current request to a know T value if possible"
   [keyword]
