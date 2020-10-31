@@ -27,12 +27,12 @@
 (def seed-data [{:person/id (java.util.UUID/randomUUID)
                  :person/name "Vincenzo"
                  :person/surname "Chianese"
-                 :person/notes ["note1"]}
+                 :person/notes ["note1" "note2"]}
 
                 {:person/id (java.util.UUID/randomUUID)
                  :person/name "Elio"
                  :person/surname "Bencini"
-                 :person/notes ["note2"]}
+                 :person/notes ["note2" "note1"]}
 
                 {:db/id "note1"
                  ::note "Nessuno mi vuole"}
