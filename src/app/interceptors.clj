@@ -4,7 +4,7 @@
                       [datomic.api :refer [tx->t]]
                       [lambdaisland.uri :refer [assoc-query]]
                       [io.pedestal.interceptor.helpers :as interceptor]
-                      [app.utils :refer [normalize-payload response-304 response-412]]
+                      [app.utils :refer [normalize-payload response-304 response-412 response-307]]
                       [app.data :as data]))
 
 (defn validate-payload-shape "Validates a :source request part with the provided spec"
@@ -74,5 +74,4 @@
                     ffirst)
               path (-> ctx :request :uri)]
           (cond-> ctx
-            (some? t) (assoc :response {:status 307
-                                        :headers {"Location" (str (assoc-query path :t t))}})))))))
+            (some? t) (partial response-307 (str (assoc-query path :t t)))))))))

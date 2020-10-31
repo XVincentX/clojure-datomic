@@ -10,6 +10,11 @@
                             :headers {"Content-Type" "text/plain"}
                             :body message}))
 
+(defn response-307 "Returns a 307 response with the specified location"
+  [location context]
+  (assoc context :response {:status 307
+                            :headers {"Location" location}}))
+
 (defn normalize-payload "Takes a typical Datomic query result and returns the first item,
                          assuming the last one is the entity ID used for caching purposes"
   [payload]
