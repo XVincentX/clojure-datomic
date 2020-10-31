@@ -3,11 +3,14 @@ orbs:
   heroku: circleci/heroku@1.2.3
 jobs:
   build:
-    working_directory: ~/app-clojure
+    working_directory: ~/repo
     docker:
       - image: circleci/clojure:tools-deps
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - dependencies-{{ checksum "deps.edn" }}
       - heroku/install
       - run: heroku plugins:install java
       - run: mkdir ~/.clojure && mv ./repo.edn ~/.clojure/deps.edn
@@ -15,3 +18,7 @@ jobs:
       - run: clojure -M:depstar -m hf.depstar.uberjar app.jar
       - run: "echo 'web: java -cp app.jar clojure.main -m app.core' > ./Procfile"
       - run: heroku deploy:jar app.jar --app clj-app --jdk 11
+      - save_cache:
+          key: dependencies-{{ checksum "deps.edn" }}
+          paths:
+            - .cpcache
