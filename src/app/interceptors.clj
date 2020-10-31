@@ -50,9 +50,9 @@
    ::tx-304
    (fn [context]
      (let [if-none-match (get-in context [:request :headers "if-none-match"])
-           body (-> context :response :body)
-           t (when if-none-match (Integer. if-none-match))
-           max-t (apply max (map #(-> % last tx->t) body))]
+           body          (-> context :response :body)
+           t             (when if-none-match (Integer. if-none-match))
+           max-t         (apply max (map #(-> % last tx->t) body))]
        (if (= t max-t)
          (response-304 context)
          (update-in context [:response :body] normalize-payload))))))
@@ -65,13 +65,13 @@
       (nil? (-> % :request :query-params :t))
       (fn [ctx]
         (let [db (-> ctx :request :db)
-              t (-> (d/q '[:find ?t
-                           :in $ ?keyword
-                           :where [_ ?keyword _ ?tx] [(datomic.api/tx->t ?tx) ?t]]
-                         db keyword)
-                    sort
-                    reverse
-                    ffirst)
+              t  (-> (d/q '[:find ?t
+                            :in $ ?keyword
+                            :where [_ ?keyword _ ?tx] [(datomic.api/tx->t ?tx) ?t]]
+                          db keyword)
+                     sort
+                     reverse
+                     ffirst)
               path (-> ctx :request :uri)]
           (cond-> ctx
             (some? t) (partial response-307 (str (assoc-query path :t t)))))))))

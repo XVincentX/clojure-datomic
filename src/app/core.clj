@@ -24,8 +24,8 @@
   (route/expand-routes
    #{["/people/:id" :get
       [(interceptors/validate-payload-shape :path-params :person/id)
-       #(let [db (:db %)
-              id (-> % :path-params :id java.util.UUID/fromString)
+       #(let [db     (:db %)
+              id     (-> % :path-params :id java.util.UUID/fromString)
               result (queries/get-user-by-id db id)]
           {:status 200 :body result})]
       :route-name :get-person]
