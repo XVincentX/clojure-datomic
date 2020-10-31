@@ -20,7 +20,7 @@
                       Alternatively, it will send an ETag header to the client"
   (interceptor/after
    ::caching-headers
-   #(if (-> % :request :db :asOfT nil?)
+   #(if (nil? (-> % :request :db :asOfT))
       (assoc-in % [:response :headers "ETag"] (-> % :request :db :t str))
       (assoc-in % [:response :headers "Cache-Control"] "public, max-age=604800, immutable"))))
 
@@ -32,7 +32,7 @@
           t-string (-> % :query-params :t)
           t (when t-string (Integer. t-string))]
       (-> %
-          (assoc :db (if (and (not (nil? t)) (<= t (:t db))) (d/as-of db t) db))
+          (assoc :db (if (and (some? t) (<= t (:t db))) (d/as-of db t) db))
           (assoc :conn conn)))))
 
 (def early-304 "Returns a 304 response when the request has the If-None-Match header and its value is the same
@@ -62,7 +62,7 @@
   (interceptor/before
    ::prefer-caching
    #(cond-> %
-      (-> % :request :query-params :t nil?)
+      (nil? (-> % :request :query-params :t))
       (fn [ctx]
         (let [db (-> ctx :request :db)
               t (-> (d/q '[:find ?t
