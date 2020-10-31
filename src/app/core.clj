@@ -13,11 +13,11 @@
        ::http/join? false
        ::http/port (Integer. (or (env :port) 5000))}
       (http/default-interceptors)
-      (update ::http/interceptors conj interceptors/with-db)
-      (update ::http/interceptors conj interceptors/early-304)
-      (update ::http/interceptors conj interceptors/caching-headers)
-      (update ::http/interceptors conj http/json-body)
-      (update ::http/interceptors conj interceptors/tx-304)
+      (update ::http/interceptors into [interceptors/with-db
+                                        interceptors/early-304
+                                        interceptors/caching-headers
+                                        interceptors/tx-304
+                                        http/json-body])
       http/create-server))
 
 (def routes
