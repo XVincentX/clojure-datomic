@@ -53,3 +53,6 @@
 (defn restart "Restart the server when required" []
   (http/stop @server)
   (start))
+
+(comment (restart))
+(comment (-main))
