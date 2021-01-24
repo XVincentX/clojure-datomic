@@ -6,6 +6,8 @@ pom.xml
 pom.xml.asc
 .cpcache
 .calva
+.clj-kondo
+.lsp
 db
 *.jar
 *.class
