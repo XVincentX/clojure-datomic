@@ -8,10 +8,10 @@
 
 (defn create-server "Creates a new server with the route map" [routes]
   (-> {::http/routes routes
-       ::http/type :immutant
-       ::http/host "0.0.0.0"
-       ::http/join? false
-       ::http/port (Integer. (or (env :port) 5000))}
+       ::http/type   :immutant
+       ::http/host   "0.0.0.0"
+       ::http/join?  false
+       ::http/port   (Integer. (or (env :port) 5000))}
       (http/default-interceptors)
       (update ::http/interceptors into [interceptors/with-db
                                         interceptors/early-304
