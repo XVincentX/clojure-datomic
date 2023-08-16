@@ -1,4 +1,4 @@
-{:deps    {com.datomic/dev-local         {:mvn/version "0.9.235"}
+{:deps     {com.datomic/local         {:mvn/version "1.0.267"}
            com.datomic/datomic-free      {:mvn/version "0.9.5697"}
            lambdaisland/uri              {:mvn/version "1.11.86"}
            org.clojure/clojure           {:mvn/version "1.10.3"}
